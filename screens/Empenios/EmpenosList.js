@@ -1,53 +1,79 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { View, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, Image, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, Card } from 'react-native-elements';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function EmpenoList() {
+  const navigation = useNavigation();
+  const [clienteId, setClienteId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [empenos, setEmpenos] = useState([]);
 
-  const navigation = useNavigation()
+  const fetchEmpenos = async (clienteId) => {
+  try {
+    const response = await axios.get(`http://192.168.0.19:3000/empenos/cliente/${clienteId}`);
+    
+    setEmpenos(response.data);
 
-  const empeños = [
-    {
-      id: '1',
-      articulo: 'Reloj Rolex',
-      cantidad: 50000,
-      fecha: '2025-05-01',
-      imagen: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcK9KpotDyOzLtbUUfwjmrccehCSAwuisPqA&s',
-    },
-    {
-      id: '2',
-      articulo: 'Laptop MacBook Pro',
-      cantidad: 25000,
-      fecha: '2025-04-15',
-      imagen: 'https://cdn.pixabay.com/photo/2015/01/21/14/14/apple-606761_1280.jpg',
-    },
-    {
-      id: '3',
-      articulo: 'Anillo de Oro',
-      cantidad: 15000,
-      fecha: '2025-03-20',
-      imagen: 'https://ss566.liverpool.com.mx/sm/1150848420.jpg',
-    },
-  ];
+  } catch (error) {
+    console.error('Error al obtener los empeños:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  useEffect(() => {
+    const getUserIdAndFetch = async () => {
+      const userData = await AsyncStorage.getItem('user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        const id = user._id;
+        setClienteId(id);
+        fetchEmpenos(id);
+      } else {
+        setLoading(false);
+      }
+    };
+
+    getUserIdAndFetch();
+  }, []);
 
   const renderItem = ({ item }) => (
-    
-    <TouchableOpacity  onPress={() => navigation.navigate("EmpenoDetail")}>
+    <TouchableOpacity onPress={() => navigation.navigate("EmpenoDetail", { id: item._id })}>
       <Card containerStyle={styles.card}>
-        <Image source={{ uri: item.imagen }} style={styles.image} />
-        <Text style={styles.title}>{item.articulo}</Text>
-        <Text>Monto prestado: ${item.cantidad}</Text>
-        <Text>Fecha: {item.fecha}</Text>
+        {item.images && item.images.length > 0 ? (
+          <Image 
+            source={{ uri: `http://192.168.0.19:3000/uploads/${item.images[0]}` }} 
+            style={styles.image} 
+          />
+        ) : (
+          <View style={[styles.image, { backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center' }]}>
+            <Text style={{ color: '#666' }}>Sin imagen</Text>
+          </View>
+        )}
+        <Text style={styles.title}>{item.nombre}</Text>
+        <Text>{item.descripcion}</Text>
+        <Text style={{ fontSize: 12, color: 'gray' }}>Fecha: {new Date(item.createdAt).toLocaleDateString()}</Text>
       </Card>
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={empeños}
-        keyExtractor={(item) => item.id}
+        data={empenos}
+        keyExtractor={(item) => item._id.toString()}
         renderItem={renderItem}
       />
     </View>

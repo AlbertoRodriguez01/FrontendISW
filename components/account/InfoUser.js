@@ -41,18 +41,13 @@ export default function InfoUser({ user, setLoading, setLoadingText }) {
                 uri: image,
                 type: 'image/jpeg',
                 name: 'photo.jpg'
-            })
-
-            console.log("Form data: ", formData)
-            
+            })            
 
             const response = await axios.post(`http://192.168.0.19/user/${user.id}/photo`, formData, {
                     headers: {
                     'Content-Type': 'multipart/form-data',
                 }, timeout: 20000
             });
-            
-            console.log(response.data)
             
             if(response.status === 200) {
                 Alert.alert('Exito', 'Foto actualizada correctamente')
@@ -82,6 +77,12 @@ export default function InfoUser({ user, setLoading, setLoadingText }) {
                 </Text>
                 <Text>
                     {user.email}
+                </Text>
+                <Text>
+                    {user.direction ? user.direction : "Sin dirección registrada"}
+                </Text>
+                <Text>
+                    {user.telefono ? user.telefono : "000-000-0000"}
                 </Text>
             </View>
         </View>

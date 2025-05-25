@@ -22,6 +22,7 @@ export default function UserLogged()  {
       const fetchUser = async () => {
         const currentUser = await getCurrentUser()
         setUser(currentUser)
+        console.log(currentUser)
         setReloadUser(false)
       }
       fetchUser()

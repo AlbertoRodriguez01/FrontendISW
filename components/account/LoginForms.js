@@ -46,9 +46,11 @@ export default function LoginForm() {
             _id: data.id,
             email,
             name: data.name,
-            role: data.role
+            role: data.role,
+            direction: data.direction,
+            telefono: data.telefono
           }))
-          Alert.alert('Bienvenido', `Hola ${data.name}, rol: ${data.role}`)
+          Alert.alert('Bienvenido', `Hola ${data.name}`)
           navigation.navigate("Account")
         }
 

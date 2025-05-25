@@ -75,6 +75,7 @@ export default function AccountOptions({ user, setReloadUser }) {
           <ChangeDireccion
             user={user}
             setShowModal={setShowModal}
+            setReloadUser={setReloadUser}
           />
         )
         break
@@ -83,6 +84,7 @@ export default function AccountOptions({ user, setReloadUser }) {
           <ChangeTel
             user={user}
             setShowModal={setShowModal}
+            setReloadUser={setReloadUser}
           />
         )
         break

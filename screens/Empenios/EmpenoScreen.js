@@ -1,19 +1,31 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { StyleSheet, View, TouchableOpacity, Image, ScrollView, Alert } from 'react-native'
-import { Input, Icon, Button } from 'react-native-elements'
+import { Input, Icon, Button, normalize } from 'react-native-elements'
 import * as ImagePicker from 'expo-image-picker'
 import Loading from '../../components/Loading'
+import axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function EmpenoScreen() {
   
+  const [nombre, setNombre] = useState('')
+  const [descripcion, setDescripcion] = useState('')
+  const [clienteId, setClienteId] = useState(null)
   const [images, setImages] = useState([])
   const [loadingVisible, setLoadingVisible] = useState(false);
 
-  const sendImages = async() => {
-    setLoadingVisible(true)
-    console.log("Imagenes enviadas")
-    setLoadingVisible(false)
-  }
+  useEffect(() => {
+    const getUserId = async () => {
+      const userData = await AsyncStorage.getItem('user')
+      if (userData) {
+        const user = JSON.parse(userData)
+        console.log("ClienteId recuperado en EmpenoScreen:", user._id)
+        setClienteId(user._id)
+      }
+    }
+
+    getUserId()
+  }, [])
 
   const pickImage = async () => {
 
@@ -52,16 +64,67 @@ export default function EmpenoScreen() {
     )
   }
 
+  const sendData = async () => {
+    if(!nombre || !descripcion) {
+      Alert.alert('Error', 'Todos los campos son obligatorios')
+      return
+    }
+
+    setLoadingVisible(true)
+
+    try {
+      const formData = new FormData()
+
+      formData.append("nombre", nombre)
+      formData.append("descripcion", descripcion)
+      formData.append("clienteId", clienteId)
+
+      images.forEach((uri, index) => {
+        formData.append("images", {
+          uri: uri,
+          type: 'images/jpeg',
+          name: `image_${index}.jpg`
+        })
+      })
+
+      const response = await axios.post("http://192.168.0.19:3000/empeno", formData, {
+        headers: {
+          "Content-Type" : "multipart/form-data"
+        }
+      })
+
+      console.log(response.data)
+      Alert.alert("Exito", "Articulo enviado correctamente")
+      resetForm()
+
+    } catch (error) {
+      console.log(error)
+      Alert.alert("Error", "Hubo un problema al enviar el articulo")
+    } finally {
+      setLoadingVisible(false)
+    }
+  }
+
+  const resetForm = () => {
+    setNombre('')
+    setDescripcion('')
+    setImages([])
+  }
+
   return (
     <ScrollView style={styles.viewContainer}>
       <View style={styles.viewForm}>
         <Input
           placeholder='Nombre del articulo'
+          value={nombre}
+          onChangeText={setNombre}
         />
         <Input
           placeholder='Descripcion'
           multiline
           containerStyle={styles.textArea}
+          value={descripcion}
+          onChangeText={setDescripcion}
         />
       </View>
 
@@ -84,7 +147,7 @@ export default function EmpenoScreen() {
       <Button
         title="Valuar Articulo"
         buttonStyle={styles.btnAddLibro}
-        onPress={() => sendImages()}
+        onPress={() => sendData()}
       />
       <Loading isVisible={loadingVisible} text="Valuando Articulo..." />
     </ScrollView>

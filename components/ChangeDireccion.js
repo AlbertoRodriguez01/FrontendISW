@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Input, Button } from 'react-native-elements'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
-export default function ChangeDireccion({ user, setShowModal }) {
+export default function ChangeDireccion({ user, setShowModal, setReloadUser }) {
   const [newDirection, setNewDirection] = useState("")
   const [error, setError] = useState(null)
 
@@ -19,10 +20,14 @@ export default function ChangeDireccion({ user, setShowModal }) {
       await fetch(`http://192.168.0.19:3000/user/${user._id}/direction`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ direccion: newDirection })
+        body: JSON.stringify({ direction: newDirection })
       })
 
+      const updatedUser = { ...user, direction: newDirection }
+      await AsyncStorage.setItem('user', JSON.stringify(updatedUser))
+
       setShowModal(false)
+      setReloadUser(true)
 
     } catch (error) {
       console.log(error)
@@ -34,7 +39,6 @@ export default function ChangeDireccion({ user, setShowModal }) {
     <View style={styles.container}>
       <Input
         placeholder="Nueva direccion"
-        secureTextEntry
         value={newDirection}
         onChangeText={text => setNewDirection(text)}
         errorMessage={error}

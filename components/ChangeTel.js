@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Input, Button } from 'react-native-elements'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
-export default function ChangeTel({ user, setShowModal }) {
+export default function ChangeTel({ user, setShowModal, setReloadUser }) {
   const [newTel, setNewTel] = useState("")
   const [error, setError] = useState(null)
 
@@ -22,7 +23,11 @@ export default function ChangeTel({ user, setShowModal }) {
         body: JSON.stringify({ telefono: newTel })
       })
 
+      const updatedUser = { ...user, telefono: newTel }
+      await AsyncStorage.setItem('user', JSON.stringify(updatedUser))
+
       setShowModal(false)
+      setReloadUser(true)
 
     } catch (error) {
       console.log(error)
