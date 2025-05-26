@@ -5,11 +5,13 @@ import * as ImagePicker from 'expo-image-picker'
 import Loading from '../../components/Loading'
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { random } from 'lodash'
 
 export default function EmpenoScreen() {
   
   const [nombre, setNombre] = useState('')
   const [descripcion, setDescripcion] = useState('')
+  const [monto, setMonto] = useState('')
   const [clienteId, setClienteId] = useState(null)
   const [images, setImages] = useState([])
   const [loadingVisible, setLoadingVisible] = useState(false);
@@ -64,50 +66,69 @@ export default function EmpenoScreen() {
     )
   }
 
-  const sendData = async () => {
-    if(!nombre || !descripcion) {
-      Alert.alert('Error', 'Todos los campos son obligatorios')
-      return
-    }
-
-    setLoadingVisible(true)
-
-    try {
-      const formData = new FormData()
-
-      formData.append("nombre", nombre)
-      formData.append("descripcion", descripcion)
-      formData.append("clienteId", clienteId)
-
-      images.forEach((uri, index) => {
-        formData.append("images", {
-          uri: uri,
-          type: 'images/jpeg',
-          name: `image_${index}.jpg`
-        })
-      })
-
-      const response = await axios.post("http://192.168.0.19:3000/empeno", formData, {
-        headers: {
-          "Content-Type" : "multipart/form-data"
-        }
-      })
-
-      console.log(response.data)
-      Alert.alert("Exito", "Articulo enviado correctamente")
-      resetForm()
-
-    } catch (error) {
-      console.log(error)
-      Alert.alert("Error", "Hubo un problema al enviar el articulo")
-    } finally {
-      setLoadingVisible(false)
-    }
+ const sendData = async () => {
+  if (!nombre || !descripcion) {
+    Alert.alert('Error', 'Todos los campos son obligatorios')
+    return
   }
+
+  const montoGenerado = random(700, 2000)
+
+  Alert.alert(
+    "Confirmar empeño",
+    `El monto prestado será de $${montoGenerado}. Tienes un plazo de 30 días para pagar.\n¿Aceptas las condiciones?`,
+    [
+      {
+        text: "Cancelar",
+        style: "cancel"
+      },
+      {
+        text: "Aceptar",
+        onPress: async () => {
+          setLoadingVisible(true)
+
+          try {
+            const formData = new FormData()
+
+            formData.append("nombre", nombre)
+            formData.append("descripcion", descripcion)
+            formData.append("monto", montoGenerado)
+            formData.append("clienteId", clienteId)
+
+            images.forEach((uri, index) => {
+              formData.append("images", {
+                uri: uri,
+                type: "image/jpeg",
+                name: `image_${index}.jpg`
+              })
+            })
+
+            const response = await axios.post("http://192.168.0.19:3000/empeno", formData, {
+              headers: {
+                "Content-Type": "multipart/form-data"
+              }
+            })
+
+            Alert.alert("Éxito", "Artículo enviado correctamente")
+            resetForm()
+          } catch (error) {
+            console.log(error)
+            Alert.alert("Error", "Hubo un problema al enviar el artículo")
+          } finally {
+            setLoadingVisible(false)
+          }
+        }
+      }
+    ],
+    { cancelable: false }
+  )
+}
+
 
   const resetForm = () => {
     setNombre('')
     setDescripcion('')
+    setMonto('')
     setImages([])
   }
 

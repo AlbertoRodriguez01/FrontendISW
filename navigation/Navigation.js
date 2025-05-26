@@ -10,6 +10,7 @@ import CustomDrawerContent from './CustomDrawerContent';
 import SubastasStack from './SubastasStack';
 import CardStack from './CardStack';
 import EmepnosStack from './EmepnosStack';
+import AdminStack from './AdminStack';
 
 
 const Drawer = createDrawerNavigator();
@@ -31,6 +32,7 @@ export default function Navigation(){
                     <Drawer.Screen name="Empenos" component={EmepnosStack} />
                     <Drawer.Screen name="Subastas" component={SubastasStack} />
                     <Drawer.Screen name="Cards" component={CardStack} />
+                    <Drawer.Screen name="AddProd" component={AdminStack} />
                 </Drawer.Navigator>
             </NavigationContainer>
         </GestureHandlerRootView>

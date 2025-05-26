@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, Image, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Text, Card } from 'react-native-elements';
+import { Text, Card, Icon } from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -46,7 +46,7 @@ export default function EmpenoList() {
       <Card containerStyle={styles.card}>
         {item.images && item.images.length > 0 ? (
           <Image 
-            source={{ uri: `http://192.168.0.19:3000/uploads/${item.images[0]}` }} 
+            source={{ uri: item.images[0] }} 
             style={styles.image} 
           />
         ) : (
@@ -55,6 +55,7 @@ export default function EmpenoList() {
           </View>
         )}
         <Text style={styles.title}>{item.nombre}</Text>
+        <Text style={styles.title}>Monto prestado: ${item.monto}</Text>
         <Text>{item.descripcion}</Text>
         <Text style={{ fontSize: 12, color: 'gray' }}>Fecha: {new Date(item.createdAt).toLocaleDateString()}</Text>
       </Card>
@@ -69,6 +70,10 @@ export default function EmpenoList() {
     );
   }
 
+   if (empenos.length === 0) {
+    return <NotFoundEmpenos />;
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -76,6 +81,17 @@ export default function EmpenoList() {
         keyExtractor={(item) => item._id.toString()}
         renderItem={renderItem}
       />
+    </View>
+  );
+}
+
+function NotFoundEmpenos() {
+  return (
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Icon type="material-community" name="alert-outline" size={50} />
+      <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+        Aun no haz empeñado nada
+      </Text>
     </View>
   );
 }

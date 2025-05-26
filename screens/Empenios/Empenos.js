@@ -1,12 +1,33 @@
-import React from 'react'
-import { StyleSheet, ScrollView, Image, Text} from 'react-native'
-
-import { Button } from 'react-native-elements'
-import { useNavigation } from '@react-navigation/native'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, ScrollView, Image, Text, View} from 'react-native'
+import { Button, Icon } from 'react-native-elements'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function Empenos() {
 
   const navigation = useNavigation()
+
+  const [userLogged, setUserLogged] = useState(null)
+
+  useFocusEffect(
+    React.useCallback(() => {
+        const checkUser = async () => {
+            const userData = await AsyncStorage.getItem('user')
+            if(userData) {
+                setUserLogged(JSON.parse(userData))
+            } else {
+                setUserLogged(null)
+            }
+        }
+        checkUser()
+    }, [])
+  )
+
+
+  if(userLogged === null) {
+    return <UserNoLogged navigation={navigation}/>
+  }
 
     return (
         <ScrollView
@@ -28,6 +49,25 @@ export default function Empenos() {
                     />
       </ScrollView>
     )
+}
+
+function UserNoLogged({ navigation }) {
+  return (
+    <View style={{ flex: 1, justifyContent: "center", padding: 30 }}>
+      <View>
+        <Icon type="material-community" name="alert-outline" size={50} />
+        <Text style={{ fontSize: 20, fontWeight: "bold", textAlign: 'center' }}>
+          Necesitas iniciar sesion para acceder a los empeños
+        </Text>
+        <Button
+          title="Ir al Login"
+          containerStyle={{ marginTop: 30, width: "80%", marginVertical: 10, justifyContent: 'center'}}
+          buttonStyle={{ backgroundColor: "#377d07" }}
+          onPress={() => navigation.navigate("Cuenta")}
+        />
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
