@@ -1,0 +1,65 @@
+//CREAR PROYECTO
+npm install -g expo-cli
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+expo init NOMBREPROYECTO
+
+//INSTALAR NAVEGACION
+npm install @react-navigation/native
+
+npx expo install react-native-screens react-native-safe-area-context
+
+npm add @react-navigation/bottom-tabs
+
+npm add @react-navigation/drawer
+
+npm i react-native-gesture-handler
+
+npm i react-native-reanimated
+
+npm add @react-navigation/stack
+
+
+//ICONOS
+ npm install react-native-elements
+
+npm install react-native-keyboard-aware-scroll-view
+
+//LODASH
+npm i -g npm
+npm i --save lodash
+
+
+//IMAGE PICKER
+npx expo install expo-image-picker
+
+//Animaciones
+npm install react-native-animatable
+
+npm install react-native-picker-select
+
+npm install @react-native-async-storage/async-storage
+
+
+
+//Creación del backend
+mkdir backend
+cd backend
+npm init -y
+
+npm install express mongoose cors
+npm install mongoDB
+
+npm install axios
+
+npm install firebase-admin
+
+npm install multer cloudinary dotenv
+
+//uri
+
+USER: l21050585
+
+PWD: UVYsX6UoS1iG4iEK
+
+
+
